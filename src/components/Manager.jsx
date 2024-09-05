@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -203,189 +203,164 @@ const Manager = () => {
               <div className="flex flex-col p-4 text-white gap-8">
                 <input
                   value={form.site}
-                  onChange={handleChange}
-                  placeholder="Enter website URL"
-                  className="rounded-full border border-green-600 p-4 text-black"
-                  type="url"
                   name="site"
+                  onChange={handleChange}
+                  placeholder="Site"
+                  className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
                 />
-                <div className="flex flex-col md:flex-row gap-4">
-                  <input
-                    value={form.username}
-                    onChange={handleChange}
-                    placeholder="Enter Username"
-                    className="rounded-full border border-green-600 p-4 text-black"
-                    type="text"
-                    name="username"
-                  />
-                  <div className="relative flex-grow">
-                    <input
-                      ref={passwordRef}
-                      value={form.password}
-                      onChange={handleChange}
-                      placeholder="Enter Password"
-                      className="rounded-full border border-green-600 p-4 text-black"
-                      type={passwordVisible ? "text" : "password"}
-                      name="password"
-                    />
-                    <button
-                      type="button"
-                      onClick={togglePasswordVisibility}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-100"
-                    >
-                      {passwordVisible ? "Hide" : "Show"}
-                    </button>
-                  </div>
-                </div>
+                <input
+                  value={form.username}
+                  name="username"
+                  onChange={handleChange}
+                  placeholder="Username"
+                  className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+                />
+                <input
+                  type={passwordVisible ? 'text' : 'password'}
+                  value={form.password}
+                  name="password"
+                  onChange={handleChange}
+                  placeholder="Password"
+                  className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
+                />
                 <button
                   onClick={savePassword}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full"
+                  className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded-lg"
                 >
                   Save Password
                 </button>
+                <div>
+                  {passwordArray.map((pass, index) => (
+                    <div key={index} className="bg-gray-700 p-4 mb-4 rounded-lg border border-gray-600">
+                      {editingIndex === index ? (
+                        <div>
+                          <input
+                            value={newSite}
+                            onChange={(e) => setNewSite(e.target.value)}
+                            placeholder="Site"
+                            className="p-2 rounded-lg bg-gray-600 border border-gray-500 text-white"
+                          />
+                          <input
+                            value={newUsername}
+                            onChange={(e) => setNewUsername(e.target.value)}
+                            placeholder="Username"
+                            className="p-2 rounded-lg bg-gray-600 border border-gray-500 text-white"
+                          />
+                          <input
+                            type={passwordVisible ? 'text' : 'password'}
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="Password"
+                            className="p-2 rounded-lg bg-gray-600 border border-gray-500 text-white"
+                          />
+                          <button
+                            onClick={() => saveEditedPassword(index)}
+                            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg mr-2"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingIndex(null)}
+                            className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <p>Site: {pass.site}</p>
+                          <p>Username: {pass.username}</p>
+                          <p>Password: {pass.password}</p>
+                          <button
+                            onClick={() => copyToClipboard(pass.password, 'Password')}
+                            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 px-2 rounded-lg mr-2"
+                          >
+                            Copy Password
+                          </button>
+                          <button
+                            onClick={() => startEditing(index)}
+                            className="bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-1 px-2 rounded-lg mr-2"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => deletePassword(index)}
+                            className="bg-red-500 hover:bg-red-400 text-white font-bold py-1 px-2 rounded-lg"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded-lg"
+                >
+                  Logout
+                </button>
               </div>
-
-              <div className="mt-8">
-                {passwordArray.length > 0 ? (
-                  <ul className="space-y-4">
-                    {passwordArray.map((password, index) => (
-                      <li key={index} className="bg-gray-700 p-4 rounded-lg shadow-md">
-                        {editingIndex === index ? (
-                          <>
-                            <input
-                              value={newSite}
-                              onChange={(e) => setNewSite(e.target.value)}
-                              placeholder="Update website URL"
-                              className="rounded-full border border-green-600 p-2 text-black"
-                            />
-                            <input
-                              value={newUsername}
-                              onChange={(e) => setNewUsername(e.target.value)}
-                              placeholder="Update Username"
-                              className="rounded-full border border-green-600 p-2 text-black"
-                            />
-                            <input
-                              value={newPassword}
-                              onChange={(e) => setNewPassword(e.target.value)}
-                              placeholder="Update Password"
-                              className="rounded-full border border-green-600 p-2 text-black"
-                            />
-                            <button
-                              onClick={() => saveEditedPassword(index)}
-                              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mt-2"
-                            >
-                              Save Changes
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <p><strong>Website:</strong> {password.site}</p>
-                                <p><strong>Username:</strong> {password.username}</p>
-                                <p><strong>Password:</strong> {password.password}</p>
-                              </div>
-                              <div className="flex space-x-4">
-                                <img
-                                  src="https://cdn-icons-png.flaticon.com/128/13170/13170070.png"
-                                  alt="edit icon"
-                                  width={30}
-                                  className="inline-block mx-2 cursor-pointer"
-                                  onClick={() => startEditing(index)}
-                                />
-                                <img
-                                  src="https://cdn-icons-png.flaticon.com/128/6861/6861362.png"
-                                  alt="delete icon"
-                                  width={30}
-                                  className="inline-block mx-2 cursor-pointer"
-                                  onClick={() => deletePassword(index)}
-                                />
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-center text-gray-400">No passwords saved yet.</p>
-                )}
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full mt-8"
-              >
-                Logout
-              </button>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex flex-col p-4 text-white gap-6">
               {login ? (
                 <>
-                  <h2 className="text-2xl font-bold text-white mb-4">Login</h2>
                   <input
+                    type="text"
+                    placeholder="Username"
                     value={credentials.username}
                     onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                    placeholder="Username"
-                    className="rounded-full border border-green-600 p-4 text-black"
-                    type="text"
+                    className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
                   />
                   <input
+                    type="password"
+                    placeholder="Password"
                     value={credentials.password}
                     onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                    placeholder="Password"
-                    className="rounded-full border border-green-600 p-4 text-black"
-                    type="password"
+                    className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
                   />
                   <button
                     onClick={handleLogin}
-                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full"
+                    className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 rounded-lg"
                   >
                     Login
                   </button>
-                  <p className="text-gray-400 mt-4">
-                    Don't have an account?{' '}
-                    <button
-                      onClick={() => setLogin(false)}
-                      className="text-blue-400 underline"
-                    >
-                      Sign Up
-                    </button>
-                  </p>
+                  <button
+                    onClick={() => setLogin(false)}
+                    className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg"
+                  >
+                    Switch to Signup
+                  </button>
                 </>
               ) : (
                 <>
-                  <h2 className="text-2xl font-bold text-white mb-4">Sign Up</h2>
                   <input
+                    type="text"
+                    placeholder="Username"
                     value={credentials.username}
                     onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                    placeholder="Username"
-                    className="rounded-full border border-green-600 p-4 text-black"
-                    type="text"
+                    className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
                   />
                   <input
+                    type="password"
+                    placeholder="Password"
                     value={credentials.password}
                     onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                    placeholder="Password"
-                    className="rounded-full border border-green-600 p-4 text-black"
-                    type="password"
+                    className="p-2 rounded-lg bg-gray-700 border border-gray-600 text-white"
                   />
                   <button
                     onClick={handleSignup}
-                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full"
+                    className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded-lg"
                   >
-                    Sign Up
+                    Signup
                   </button>
-                  <p className="text-gray-400 mt-4">
-                    Already have an account?{' '}
-                    <button
-                      onClick={() => setLogin(true)}
-                      className="text-blue-400 underline"
-                    >
-                      Login
-                    </button>
-                  </p>
+                  <button
+                    onClick={() => setLogin(true)}
+                    className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded-lg"
+                  >
+                    Switch to Login
+                  </button>
                 </>
               )}
             </div>
@@ -397,6 +372,3 @@ const Manager = () => {
 };
 
 export default Manager;
-
-
-
